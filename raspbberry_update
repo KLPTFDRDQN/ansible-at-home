@@ -1,14 +1,101 @@
-# playbooks/update_pihole.yml
 ---
-- hosts: 192.168.1.11
+- name: Update Raspberry Pi systemen
+  hosts: 192.168.1.11
+  remote_user: support
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+  
+  vars:
+    # Optioneel: herstart na update (zet op false als je handmatig wilt herstarten)
+    reboot_after_update: true
+    # Timeout voor herstart (seconden)
+    reboot_timeout: 300
+    
   tasks:
-    - name: Update package lists
+    - name: Toon systeem informatie
+      debug:
+        msg: |
+          Hostname: {{ inventory_hostname }}
+          OS: {{ ansible_distribution }} {{ ansible_distribution_version }}
+          Architecture: {{ ansible_architecture }}
+          Pi Model: {{ ansible_lsb.description | default('Unknown') }}
+    
+    - name: Update apt cache
       apt:
         update_cache: yes
-      changed_when: false
-
-    - name: Upgrade all packages
+        cache_valid_time: 3600
+      register: apt_update
+      
+    - name: Upgrade alle packages
       apt:
         upgrade: dist
         autoremove: yes
         autoclean: yes
+      register: apt_upgrade
+      
+    - name: Toon update resultaat
+      debug:
+        msg: "{{ apt_upgrade.stdout_lines | default(['Geen output beschikbaar']) }}"
+      when: apt_upgrade.stdout_lines is defined
+      
+    - name: Check of herstart nodig is
+      stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+      
+    - name: Toon herstart status
+      debug:
+        msg: "Herstart is {{ 'vereist' if reboot_required.stat.exists else 'niet nodig' }}"
+        
+    - name: Update firmware (optioneel - alleen voor Pi's met rpi-update)
+      command: rpi-update
+      register: firmware_update
+      failed_when: false
+      when: 
+        - ansible_architecture == "armv7l" or ansible_architecture == "aarch64"
+        - reboot_after_update == true
+      
+    - name: Herstart systeem als nodig
+      reboot:
+        reboot_timeout: "{{ reboot_timeout }}"
+        msg: "Herstarten na system update"
+      when: 
+        - reboot_after_update == true
+        - reboot_required.stat.exists or firmware_update.changed
+        
+    - name: Wacht tot systeem weer online is
+      wait_for_connection:
+        delay: 15
+        timeout: "{{ reboot_timeout }}"
+      when: 
+        - reboot_after_update == true
+        - reboot_required.stat.exists or firmware_update.changed
+        
+    - name: Verifieer systeem status na herstart
+      command: uptime
+      register: uptime_result
+      when: 
+        - reboot_after_update == true
+        - reboot_required.stat.exists or firmware_update.changed
+        
+    - name: Toon uptime na herstart
+      debug:
+        msg: "Systeem uptime: {{ uptime_result.stdout }}"
+      when: 
+        - reboot_after_update == true
+        - uptime_result is defined
+        - uptime_result.stdout is defined
+        
+    - name: Cleanup oude packages
+      apt:
+        autoremove: yes
+        autoclean: yes
+        
+    - name: Update summary
+      debug:
+        msg: |
+          === UPDATE SAMENVATTING voor {{ inventory_hostname }} ===
+          - Packages bijgewerkt: {{ 'Ja' if apt_upgrade.changed else 'Geen updates beschikbaar' }}
+          - Herstart uitgevoerd: {{ 'Ja' if (reboot_after_update and (reboot_required.stat.exists or firmware_update.changed)) else 'Nee' }}
+          - Systeem status: Online en bijgewerkt
