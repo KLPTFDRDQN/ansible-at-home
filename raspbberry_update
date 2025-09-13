@@ -97,5 +97,5 @@
         msg: |
           === UPDATE SAMENVATTING voor {{ inventory_hostname }} ===
           - Packages bijgewerkt: {{ 'Ja' if apt_upgrade.changed else 'Geen updates beschikbaar' }}
-          - Herstart uitgevoerd: {{ 'Ja' if (reboot_after_update and (reboot_required.stat.exists or (update_firmware == true and firmware_update.changed))) else 'Nee' }}
+          - Herstart uitgevoerd: {{ 'Ja' if (reboot_after_update and reboot_required.stat.exists) else 'Nee' }}
           - Systeem status: Online en bijgewerkt
