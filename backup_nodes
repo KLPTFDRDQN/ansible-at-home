@@ -1,0 +1,188 @@
+---
+- name: Backup directories naar Windows share
+  hosts: 192.168.1.12
+  become: yes
+  gather_facts: yes
+  
+  vars:
+    server_ip: "192.168.1.130"
+    username: "pihole"
+    encrypted_password: "Njc2w5dUV0JrcHZa"
+    share_name: "backup"
+    mount_point: "/mnt/windows_share"
+    backup_timestamp: "{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}"
+    local_backup_dir: "/tmp/backup_{{ backup_timestamp }}"
+    backup_folder_name: "backup_{{ ansible_hostname }}_{{ backup_timestamp }}"
+    
+    source_directories:
+      - path: "/home/support/scripts"
+        archive_name: "scripts_{{ backup_timestamp }}.tar.gz"
+      - path: "/var/log"
+        archive_name: "var_log_{{ backup_timestamp }}.tar.gz"
+
+  tasks:
+    - name: Installeren van benodigde packages
+      package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - cifs-utils
+        - tar
+        - gzip
+      tags:
+        - install
+
+    - name: Controleren of source directories bestaan
+      stat:
+        path: "{{ item.path }}"
+      register: dir_check
+      loop: "{{ source_directories }}"
+      tags:
+        - validation
+
+    - name: Waarschuwing voor niet-bestaande directories
+      debug:
+        msg: "Waarschuwing: Directory {{ item.item.path }} bestaat niet"
+      when: not item.stat.exists
+      loop: "{{ dir_check.results }}"
+      tags:
+        - validation
+
+    - name: Aanmaken van lokale backup directory
+      file:
+        path: "{{ local_backup_dir }}"
+        state: directory
+        mode: '0755'
+      tags:
+        - preparation
+
+    - name: Aanmaken van mount point
+      file:
+        path: "{{ mount_point }}"
+        state: directory
+        mode: '0755'
+      tags:
+        - preparation
+
+    - name: Controleren of share al gemount is
+      shell: mount | grep -q "{{ mount_point }}"
+      register: mount_check
+      failed_when: false
+      changed_when: false
+      tags:
+        - mount
+
+    - name: Unmounten van bestaande share
+      mount:
+        path: "{{ mount_point }}"
+        state: unmounted
+      when: mount_check.rc == 0
+      tags:
+        - mount
+
+    - name: Decoderen van wachtwoord
+      shell: echo "{{ encrypted_password }}" | base64 -d
+      register: decoded_password
+      changed_when: false
+      no_log: true
+      tags:
+        - mount
+
+    - name: Mounten van Windows share
+      mount:
+        path: "{{ mount_point }}"
+        src: "//{{ server_ip }}/{{ share_name }}"
+        fstype: cifs
+        opts: "username={{ username }},password={{ decoded_password.stdout }},uid={{ ansible_user_uid }},gid={{ ansible_user_gid }},iocharset=utf8"
+        state: mounted
+      no_log: true
+      tags:
+        - mount
+
+    - name: Inpakken van directories
+      archive:
+        path: "{{ item.item.path }}"
+        dest: "{{ local_backup_dir }}/{{ item.item.archive_name }}"
+        format: gz
+        mode: '0644'
+      when: item.stat.exists
+      loop: "{{ dir_check.results }}"
+      register: archive_results
+      tags:
+        - backup
+
+    - name: Tonen van inpak resultaten
+      debug:
+        msg: "✓ {{ item.item.item.path }} succesvol ingepakt als {{ item.item.item.archive_name }}"
+      when: item.changed and item.item.stat.exists
+      loop: "{{ archive_results.results }}"
+      tags:
+        - backup
+
+    - name: Aanmaken van backup folder op Windows share
+      file:
+        path: "{{ mount_point }}/{{ backup_folder_name }}"
+        state: directory
+        mode: '0755'
+      tags:
+        - copy
+
+    - name: Kopiëren van backup bestanden naar Windows share
+      copy:
+        src: "{{ item }}"
+        dest: "{{ mount_point }}/{{ backup_folder_name }}/"
+        mode: '0644'
+        remote_src: yes
+      with_fileglob:
+        - "{{ local_backup_dir }}/*.tar.gz"
+      register: copy_results
+      tags:
+        - copy
+
+    - name: Tonen van backup overzicht
+      find:
+        paths: "{{ mount_point }}/{{ backup_folder_name }}"
+        patterns: "*.tar.gz"
+      register: backup_files
+      tags:
+        - summary
+
+    - name: Backup overzicht
+      debug:
+        msg: 
+          - "=== Backup Voltooid ==="
+          - "Datum: {{ ansible_date_time.iso8601 }}"
+          - "Hostname: {{ ansible_hostname }}"
+          - "Backup locatie: {{ mount_point }}/{{ backup_folder_name }}"
+          - "Aantal bestanden: {{ backup_files.files | length }}"
+      tags:
+        - summary
+
+    - name: Detailoverzicht van backup bestanden
+      debug:
+        msg: "{{ item.path | basename }} - {{ (item.size / 1024 / 1024) | round(2) }} MB"
+      loop: "{{ backup_files.files }}"
+      tags:
+        - summary
+
+  post_tasks:
+    - name: Opruimen van lokale backup directory
+      file:
+        path: "{{ local_backup_dir }}"
+        state: absent
+      tags:
+        - cleanup
+
+    - name: Unmounten van Windows share
+      mount:
+        path: "{{ mount_point }}"
+        state: unmounted
+      tags:
+        - cleanup
+      ignore_errors: yes
+
+    - name: Backup script voltooid
+      debug:
+        msg: "Alle bestanden zijn succesvol gebackupt naar de Windows share"
+      tags:
+        - summary
