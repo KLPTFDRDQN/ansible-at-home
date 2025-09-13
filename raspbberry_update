@@ -11,6 +11,7 @@
     reboot_after_update: true
     # Timeout voor herstart (seconden)
     reboot_timeout: 300
+    ansible_deprecation_warnings: false
     
   tasks:
     - name: Toon systeem informatie
