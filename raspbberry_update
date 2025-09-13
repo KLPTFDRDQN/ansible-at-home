@@ -1,6 +1,6 @@
 # playbooks/update_pihole.yml
 ---
-- hosts: home
+- hosts: 192.168.1.11
   become: true
   become_method: sudo
   become_user: root
