@@ -64,7 +64,7 @@
       file:
         path: "{{ mount_point }}"
         state: directory
-        mode: '0755'
+        #mode: '0755'
       tags:
         - preparation
 
@@ -99,7 +99,7 @@
         fstype: cifs
         opts: "username={{ username }},password={{ decoded_password.stdout }},uid={{ ansible_user_uid }},gid={{ ansible_user_gid }},iocharset=utf8"
         state: mounted
-      no_log: true
+      no_log: false
       tags:
         - mount
 
