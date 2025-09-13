@@ -3,7 +3,7 @@
 - hosts: 192.168.1.11
   become: true
   become_method: sudo
-  become_user: root
+  become_user: support
   tasks:
     - name: Update package lists
       apt:
