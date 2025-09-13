@@ -53,7 +53,6 @@
       register: uptime_result
       when: 
         - reboot_after_update == true
-        - reboot_required.stat.exists or firmware_update.changed
         
     - name: Toon uptime na herstart
       debug:
