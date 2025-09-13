@@ -1,7 +1,9 @@
 ---
 - name: Backup directories naar Windows share
   hosts: 192.168.1.11
+  remote_user: support
   become: yes
+  become_method: sudo
   gather_facts: yes
   
   vars:
