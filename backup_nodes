@@ -1,14 +1,13 @@
 ---
 - name: Backup directories naar Windows share
-  hosts: 192.168.1.11
-  remote_user: support
+  hosts: localhost
   become: yes
-  become_method: sudo
   gather_facts: yes
   
   vars:
     server_ip: "192.168.1.130"
     username: "pihole"
+    # Versleuteld wachtwoord (base64 encoded: 676×TWBkpvZ)
     encrypted_password: "Njc2w5dUV0JrcHZa"
     share_name: "backup"
     mount_point: "/mnt/windows_share"
@@ -29,6 +28,7 @@
         state: present
       loop:
         - cifs-utils
+        - smbclient
         - tar
         - gzip
       tags:
@@ -53,6 +53,14 @@
     - name: Aanmaken van lokale backup directory
       file:
         path: "{{ local_backup_dir }}"
+        state: directory
+        mode: '0755'
+      tags:
+        - preparation
+
+    - name: Aanmaken van mount point
+      file:
+        path: "{{ mount_point }}"
         state: directory
         mode: '0755'
       tags:
@@ -89,7 +97,7 @@
         fstype: cifs
         opts: "username={{ username }},password={{ decoded_password.stdout }},uid={{ ansible_user_uid }},gid={{ ansible_user_gid }},iocharset=utf8"
         state: mounted
-      no_log: false
+      no_log: true
       tags:
         - mount
 
