@@ -48,36 +48,18 @@
       debug:
         msg: "Herstart is {{ 'vereist' if reboot_required.stat.exists else 'niet nodig' }}"
         
-    - name: Update firmware (optioneel - alleen voor Pi's met rpi-update)
-      command: rpi-update
-      register: firmware_update
-      failed_when: false
-      when: 
-        - ansible_architecture == "armv7l" or ansible_architecture == "aarch64"
-        - reboot_after_update == true
-      
-    - name: Herstart systeem als nodig
+       - name: Herstart systeem als nodig
       reboot:
         reboot_timeout: "{{ reboot_timeout }}"
         msg: "Herstarten na system update"
       when: 
         - reboot_after_update == true
-        - reboot_required.stat.exists or firmware_update.changed
-        
-    - name: Wacht tot systeem weer online is
-      wait_for_connection:
-        delay: 15
-        timeout: "{{ reboot_timeout }}"
-      when: 
-        - reboot_after_update == true
-        - reboot_required.stat.exists or firmware_update.changed
-        
+
     - name: Verifieer systeem status na herstart
       command: uptime
       register: uptime_result
       when: 
         - reboot_after_update == true
-        - reboot_required.stat.exists or firmware_update.changed
         
     - name: Toon uptime na herstart
       debug:
