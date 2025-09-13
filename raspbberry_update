@@ -1,6 +1,5 @@
 ---
 - name: Update Raspberry Pi systemen
-  hosts: raspberry_pis
   remote_user: support
   become: yes
   become_method: sudo
