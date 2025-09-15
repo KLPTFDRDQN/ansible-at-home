@@ -1,6 +1,6 @@
 ---
 - name: Update Raspberry Pi systemem
-- hosts: home_servers
+  hosts: home_servers
   become: true
   gather_facts: yes
   
