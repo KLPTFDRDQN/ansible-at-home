@@ -1,6 +1,6 @@
 ---
 - name: Update Raspberry Pi systemem
-  hosts: node2
+  hosts: raspberry_nodes
   become: true
   gather_facts: yes
   
