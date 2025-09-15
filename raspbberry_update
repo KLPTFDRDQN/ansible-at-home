@@ -1,6 +1,5 @@
 ---
-- name: Update Raspberry Pi systemen
-  hosts: 192.168.1.11
+- name: Update Raspberry Pi systemem
   become: true
   gather_facts: yes
   
