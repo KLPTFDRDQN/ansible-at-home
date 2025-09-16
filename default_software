@@ -1,0 +1,14 @@
+---
+- name: Install multiple packages
+  hosts: raspberry_nodes
+  become: yes  # Run as sudo
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - vim
+          - curl
+          - tree
+          - unzip
+        state: present
+        update_cache: yes
