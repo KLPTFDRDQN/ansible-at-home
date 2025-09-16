@@ -2,7 +2,6 @@
     tasks:
       - name: Install Vim
         become: true
-        become_method: sudo
         apt:
           name: vim
           state: latest
