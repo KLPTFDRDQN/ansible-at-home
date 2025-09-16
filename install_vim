@@ -1,0 +1,9 @@
+- hosts: all
+    tasks:
+      - name: Install Vim
+        become: true
+        become_method: sudo
+        apt:
+          name: vim
+          state: latest
+          install_recommends: true
