@@ -1,6 +1,6 @@
 ---
 - name: Intro to Ansible Playbooks
-  hosts: all
+  hosts: raspberry_nodes
 
   tasks:
   - name: Copy file hosts with permissions
