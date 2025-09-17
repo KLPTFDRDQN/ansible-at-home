@@ -1,5 +1,4 @@
 ---
-- name: Prune unused Docker images
   hosts: testing
   become: yes
   tasks:
