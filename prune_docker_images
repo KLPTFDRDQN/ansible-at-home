@@ -3,8 +3,8 @@
   hosts: testing
   become: yes  # Run as sudo
   tasks:
-- name: Clean up Docker images
-  docker_prune:
-    images: yes
-    images_filters:
+    - name: Clean up Docker images
+      docker_prune:
+      images: yes
+      images_filters:
       dangling: true
