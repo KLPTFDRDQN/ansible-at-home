@@ -1,10 +1,9 @@
 ---
-- name: Install multiple packages
-  hosts: testing
-  become: yes  # Run as sudo
+- name: Prune unused Docker images
+  hosts: all
+  become: yes
   tasks:
-    - name: Clean up Docker images
-      docker_prune:
-      images: yes
-      images_filters:
-      dangling: true
+    - name: Prune dangling images
+      docker_image:
+        prune: yes
+        dangling: yes
