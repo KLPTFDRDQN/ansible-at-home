@@ -11,5 +11,6 @@
           - tree
           - unzip
           - htop
+          - hardinfo
         state: present
         update_cache: yes
