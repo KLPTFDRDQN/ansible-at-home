@@ -5,7 +5,6 @@
   tasks:
 
 - name: Prune everything (including non-dangling images)
-  community.docker.docker_prune:
     containers: true
     images: true
     images_filters:
