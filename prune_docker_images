@@ -3,7 +3,8 @@
   hosts: testing
   become: yes  # Run as sudo
   tasks:
-  - name: Prune everything (including non-dangling images)
+
+- name: Prune everything (including non-dangling images)
   community.docker.docker_prune:
     containers: true
     images: true
