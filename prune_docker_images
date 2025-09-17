@@ -1,6 +1,7 @@
 ---
+- name: Install multiple packages
   hosts: testing
-  become: yes
+  become: yes  # Run as sudo
   tasks:
     - name: Prune dangling images
       docker_image:
