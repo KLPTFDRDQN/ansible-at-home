@@ -10,5 +10,6 @@
           - curl
           - tree
           - unzip
+          - htop
         state: present
         update_cache: yes
