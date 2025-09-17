@@ -1,6 +1,6 @@
 ---
 - name: Prune unused Docker images
-  hosts: all
+  hosts: testing
   become: yes
   tasks:
     - name: Prune dangling images
