@@ -4,6 +4,6 @@
   become: yes  # Run as sudo
   tasks:
     - name: Prune dangling images
-      docker_image:
+      images: true
         prune: yes
         dangling: yes
