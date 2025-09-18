@@ -5,3 +5,6 @@
   tasks:
   - name: List all containers
     shell: sudo docker ps -a > /tmp/my_containers.txt && sudo docker volume ls >> /tmp/my_containers.txt
+
+  - name: docker remove dangeling images
+    shell: sudo docker image prune -f
