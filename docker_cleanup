@@ -4,6 +4,6 @@
 
   tasks:
   - name: Run a command that uses non-posix shell-isms (in this example /bin/sh doesn't handle redirection and wildcards together but bash does)
-    ansible.builtin.shell: cat < /tmp/*txt
+    ansible.builtin.shell: docker logs my_api > /tmp/mylogs.txt
     args:
       executable: /bin/bash
