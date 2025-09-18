@@ -1,0 +1,11 @@
+---
+- name: Run multiple commands
+  hosts: testing
+  become: true
+  tasks:
+    - name: Execute cockpit installation
+      ansible.builtin.shell: |
+        echo "deb http://deb.debian.org/debian ${VERSION_CODENAME}-backports main" | sudo tee /etc/apt/sources.list.d/backports.list
+        sudo apt update
+        sudo apt install -t ${VERSION_CODENAME}-backports cockpit
+        echo "Cockpit setup complete."
