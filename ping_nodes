@@ -1,4 +1,4 @@
 - name: Test Ping
-  hosts: raspberry_nodes
+  hosts: all
   tasks:
   - action: ping
