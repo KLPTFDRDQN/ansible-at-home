@@ -3,5 +3,7 @@
   hosts: testing
 
   tasks:
-  - name: Get container logs
-    shell: /usr/bin/docker docker logs my_api > /tmp/mylogs.txt
+  - name: Run a command that uses non-posix shell-isms (in this example /bin/sh doesn't handle redirection and wildcards together but bash does)
+    ansible.builtin.shell: cat < /tmp/*txt
+    args:
+      executable: /bin/bash
