@@ -3,7 +3,5 @@
   hosts: production
 
   tasks:
-  - name: Run a command that uses non-posix shell-isms (in this example /bin/sh doesn't handle redirection and wildcards together but bash does)
-    ansible.builtin.shell: /usr/bin/docker logs my_api > /tmp/mylogs.txt
-    args:
-      executable: /bin/bash
+- name: List all containers
+  shell: docker ps -a > /tmp/my_containers.txt
