@@ -12,5 +12,6 @@
           - unzip
           - htop
           - hardinfo
+          - locate
         state: present
         update_cache: yes
