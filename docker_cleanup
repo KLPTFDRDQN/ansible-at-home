@@ -4,4 +4,4 @@
 
   tasks:
   - name: Get container logs
-   shell: docker logs my_api > /tmp/mylogs.txt
+    shell: docker logs my_api > /tmp/mylogs.txt
