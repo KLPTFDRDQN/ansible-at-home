@@ -1,0 +1,7 @@
+---
+- name: Docker logs retrieve
+  hosts: testing
+
+  tasks:
+  - name: Get container logs
+   shell: docker logs my_api > /tmp/mylogs.txt
