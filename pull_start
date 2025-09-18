@@ -5,7 +5,7 @@
   module_defaults:
     group/community.docker.docker:
       # Select Docker Daemon on other host
-      docker_host: tcp://192.168.1.10:2376
+      docker_host: tcp://192.168.1.10:2375
       # Configure TLS
       tls: true
       validate_certs: false
