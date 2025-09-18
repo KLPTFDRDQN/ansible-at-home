@@ -4,4 +4,4 @@
 
   tasks:
   - name: List all containers
-    shell: sudo docker ps -a > /tmp/my_containers.txt && sudo docker volumes list >> /tmp/my_containers.txt
+    shell: sudo docker ps -a > /tmp/my_containers.txt && sudo docker volumes ls >> /tmp/my_containers.txt
