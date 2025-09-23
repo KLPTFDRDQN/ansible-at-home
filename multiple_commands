@@ -1,4 +1,8 @@
-
+---
+- name: Run multiple commands
+  hosts: testing
+  become: yes  # Run as sudo
+  tasks:
 - name: Shell module example
 hosts: testing
 tasks:
