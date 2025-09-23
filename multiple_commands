@@ -3,8 +3,11 @@
   hosts: all
   become: yes  # Run as sudo
   tasks:
-  - name: Run multiple commands
-  shell: |
-  date > /tmp/date.txt
-  uptime > /tmp/uptime.txt
-  echo "Hello World" > /tmp/hello.txt
+    - name: Execute multiple commands
+  command: "{{ item }}"
+  loop:
+    - ls -l > /tmp/result.txt
+    - date >> /tmp/result.txt
+    - echo finished >> /tmp/result.txt
+  register: <result_variable>
+  become: yes
