@@ -1,0 +1,9 @@
+
+- name: Shell module example
+hosts: testing
+tasks:
+- name: Run multiple commands
+shell: |
+date > /tmp/date.txt
+uptime > /tmp/uptime.txt
+echo "Hello World" > /tmp/hello.txt
