@@ -3,9 +3,6 @@
   hosts: testing
   become: yes  # Run as sudo
   tasks:
-- name: Shell module example
-hosts: testing
-tasks:
 - name: Run multiple commands
 shell: |
 date > /tmp/date.txt
