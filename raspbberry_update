@@ -1,6 +1,6 @@
 ---
 - name: Update Raspberry Pi systemem
-  hosts: testing
+  hosts: production
   become: true
   gather_facts: yes
   
